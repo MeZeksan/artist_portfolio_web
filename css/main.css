@@ -29,7 +29,7 @@ body {
 }
 
 .navbar .logo {
-  font-size: 24px;
+  font-size: 36px;
   color: #fff;
 }
 
@@ -38,12 +38,13 @@ body {
 }
 
 .navbar ul {
+  font-size: 20px;
   list-style: none;
   display: flex;
 }
 
 .navbar ul li {
-  margin: 0 15px;
+  margin: 0 20px;
 }
 
 .navbar ul li b {
@@ -131,7 +132,7 @@ h1 {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  width: 250px;
+  width: 300px;
 }
 
 .card img {
