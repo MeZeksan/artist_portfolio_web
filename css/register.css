@@ -1,0 +1,131 @@
+@font-face {
+  font-family: 'MultiroundPro';
+  src: url('../fonts/MultiroundPro.otf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-image: url(../svg/background.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: #282828;
+  font-family: 'MultiroundPro', sans-serif;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+  color: #D4BE98;
+  text-decoration: none;
+}
+
+.navbar a:hover {
+  color: #d86fa4;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #1e1e1e;
+}
+
+.navbar .logo {
+  font-size: 36px;
+  color: #fff;
+}
+
+.navbar .logo span {
+  color: #d86fa4;
+}
+
+.navbar ul {
+  font-size: 20px;
+  list-style: none;
+  display: flex;
+}
+
+.navbar ul li {
+  margin: 0 20px;
+}
+
+.main-section {
+  text-align: center;
+  padding: 80px 20px; /* Увеличенные отступы сверху */
+}
+
+h1 {
+  color: #D4BE98;
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.form-container {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 30px;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.form-container input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.form-container button {
+  background-color: #d86fa4;
+  color: #282828;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  width: 100%;
+}
+
+.form-container button:hover {
+  background-color: #c75a8a;
+}
+
+.checkboxes {
+  margin: 10px 0; /* Отступ между чекбоксом и другими элементами формы */
+}
+
+.checkboxes span {
+  font-size: 12px; /* Уменьшите размер шрифта для метки */
+  line-height: 1.5; /* Высота строки для лучшего выравнивания */
+  color: #000000; /* Цвет текста для лучшей читаемости на темном фоне */
+}
+
+.checkboxes a {
+  color: #d86fa4; /* Цвет ссылок */
+  text-decoration: none; /* Убираем подчеркивание */
+}
+
+.checkboxes a:hover {
+  text-decoration: underline; /* Подчеркивание при наведении */
+}
+.spacer {
+  height: 250px; /* Высота, которая удлинит страницу */
+}
