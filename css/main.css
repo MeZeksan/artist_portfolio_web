@@ -20,7 +20,23 @@ body {
   background-color: #282828;
   font-family: 'MultiroundPro', sans-serif; /* Применяем шрифт ко всему телу */
 }
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff; /* Задать фон для навигации */
+  z-index: 1000; /* Разместить навигацию поверх остальных элементов */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Добавить тень для отделения от контента */
+}
+.navbar a {
+  color: #D4BE98;
+  text-decoration: none; /* Убираем подчеркивание */
+}
 
+.navbar a:hover {
+  color: #d86fa4; /* Изменение цвета при наведении, можно настроить */
+}
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -45,15 +61,6 @@ body {
 
 .navbar ul li {
   margin: 0 20px;
-}
-
-.navbar ul li b {
-  color: #D4BE98;
-  text-decoration: none;
-}
-.navbar ul li p {
-  color: #d86fa4;;
-  text-decoration: none;
 }
 
 .main-section {
@@ -157,4 +164,7 @@ h1 {
   font-size: 20px;
   color: #d86fa4;
   margin: 15px 0;
+}
+.spacer {
+  height: 250px; /* Высота, которая удлинит страницу */
 }
