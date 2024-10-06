@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -6,6 +6,43 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Регистрация - Artfolio.ru</title>
   <link rel="stylesheet" href="../css/register.css">
+  <script>
+    function validateForm(event) {
+      event.preventDefault(); // Остановить отправку формы
+      
+      const nickname = document.querySelector('input[type="text"]').value;
+      const email = document.querySelector('input[type="email"]').value;
+      const password = document.querySelector('input[type="password"]').value;
+      const agreeCheckbox = document.querySelector('input[type="checkbox"]');
+      
+      let errorMessage = "";
+
+      // Проверка на пустые поля
+      if (!nickname || !email || !password) {
+        errorMessage += "Все поля должны быть заполнены.\n";
+      }
+
+      // Проверка на корректность email
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        errorMessage += "Введите корректный адрес электронной почты.\n";
+      }
+
+      // Проверка на согласие с условиями
+      if (!agreeCheckbox.checked) {
+        errorMessage += "Вы должны согласиться с условиями и политикой конфиденциальности.\n";
+      }
+
+      // Вывод ошибок
+      if (errorMessage) {
+        alert(errorMessage);
+      } else {
+        // Отправка формы (можно заменить на фактическую отправку данных)
+        alert("Форма успешно отправлена!");
+        // Здесь можно добавить логику для отправки формы на сервер
+      }
+    }
+  </script>
 </head>
 <body>
     <!-- Header -->
@@ -25,13 +62,15 @@
     <div class="main-section">
         <h1>Регистрация</h1>
         <div class="form-container">
-            <input type="text" placeholder="Никнейм" required>
-            <input type="email" placeholder="Электронная почта" required>
-            <input type="password" placeholder="Пароль" required>
-            <div class="checkboxes">
-                <span>Согласен с <a href="terms.html">условиями</a> и <a href="privacy.html">политикой конфиденциальности</a>.</span>
-            </div>
-            <button type="submit">Зарегистрироваться</button>
+            <form onsubmit="validateForm(event)">
+                <input type="text" placeholder="Никнейм" required>
+                <input type="email" placeholder="Электронная почта" required>
+                <input type="password" placeholder="Пароль" required>
+                <div class="checkboxes">
+                    <span>Согласен с <a href="terms.html">условиями</a> и <a href="privacy.html">политикой конфиденциальности</a>.</span>
+                </div>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
         </div>
     </div>
 

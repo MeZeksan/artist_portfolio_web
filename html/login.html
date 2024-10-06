@@ -6,6 +6,35 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Авторизация - Artfolio.ru</title>
   <link rel="stylesheet" href="../css/login.css">
+  <script>
+    function validateLoginForm(event) {
+      event.preventDefault(); // Остановить отправку формы
+      
+      const email = document.querySelector('input[type="email"]').value;
+      const password = document.querySelector('input[type="password"]').value;
+      let errorMessage = "";
+
+      // Проверка на пустые поля
+      if (!email || !password) {
+        errorMessage += "Все поля должны быть заполнены.\n";
+      }
+
+      // Проверка на корректность email
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        errorMessage += "Введите корректный адрес электронной почты.\n";
+      }
+
+      // Вывод ошибок
+      if (errorMessage) {
+        alert(errorMessage);
+      } else {
+        // Отправка формы (можно заменить на фактическую отправку данных)
+        alert("Форма успешно отправлена!");
+        // Здесь можно добавить логику для отправки формы на сервер
+      }
+    }
+  </script>
 </head>
 <body>
     <!-- Header -->
@@ -25,7 +54,7 @@
     <section class="main-section">
         <h1>Авторизация</h1>
         <div class="form-container">
-            <form>
+            <form onsubmit="validateLoginForm(event)">
                 <input type="email" placeholder="Электронная почта" required>
                 <input type="password" placeholder="Пароль" required>
                 <button type="submit">Войти</button>
