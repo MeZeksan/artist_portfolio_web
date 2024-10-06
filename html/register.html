@@ -6,40 +6,72 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Регистрация - Artfolio.ru</title>
   <link rel="stylesheet" href="../css/register.css">
-  <script>
-    function validateForm(event) {
-      event.preventDefault(); // Остановить отправку формы
+  
+  <!-- Подключение Firebase -->
+  <script type="module">
+    // Импортируем Firebase модули
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+    // Конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
+      authDomain: "artfolio-webn.firebaseapp.com",
+      projectId: "artfolio-webn",
+      storageBucket: "artfolio-webn.appspot.com",
+      messagingSenderId: "283058220280",
+      appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
+      measurementId: "G-JDDYG1C6J1"
+    };
+
+    // Инициализация Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    console.log("Firebase инициализирован:", app);
+
+    window.validateForm = function(event) {
+      event.preventDefault();
       
-      const nickname = document.querySelector('input[type="text"]').value;
-      const email = document.querySelector('input[type="email"]').value;
-      const password = document.querySelector('input[type="password"]').value;
-      const agreeCheckbox = document.querySelector('input[type="checkbox"]');
+      const nickname = document.getElementById('nickname').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const agreeCheckbox = document.getElementById('agree');
       
       let errorMessage = "";
 
-      // Проверка на пустые поля
+      // Проверка заполненности полей
       if (!nickname || !email || !password) {
         errorMessage += "Все поля должны быть заполнены.\n";
       }
 
-      // Проверка на корректность email
+      // Проверка корректности электронной почты
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         errorMessage += "Введите корректный адрес электронной почты.\n";
       }
 
-      // Проверка на согласие с условиями
+      // Проверка согласия с условиями
       if (!agreeCheckbox.checked) {
         errorMessage += "Вы должны согласиться с условиями и политикой конфиденциальности.\n";
       }
 
-      // Вывод ошибок
+      // Вывод ошибок, если они есть
       if (errorMessage) {
         alert(errorMessage);
       } else {
-        // Отправка формы (можно заменить на фактическую отправку данных)
-        alert("Форма успешно отправлена!");
-        // Здесь можно добавить логику для отправки формы на сервер
+        // Регистрация пользователя
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            console.log("Регистрация прошла успешно:", userCredential);
+            alert("Регистрация прошла успешно!");
+            // Перенаправление на главную страницу
+            window.location.href = 'main.html'; 
+          })
+          .catch((error) => {
+            console.error("Ошибка регистрации:", error);
+            alert(error.message);
+          });
       }
     }
   </script>
@@ -63,11 +95,11 @@
         <h1>Регистрация</h1>
         <div class="form-container">
             <form onsubmit="validateForm(event)">
-                <input type="text" placeholder="Никнейм" required>
-                <input type="email" placeholder="Электронная почта" required>
-                <input type="password" placeholder="Пароль" required>
+                <input type="text" id="nickname" name="nickname" placeholder="Никнейм" required>
+                <input type="email" id="email" name="email" placeholder="Электронная почта" required>
+                <input type="password" id="password" name="password" placeholder="Пароль" required>
                 <div class="checkboxes">
-                    <span>Согласен с <a href="terms.html">условиями</a> и <a href="privacy.html">политикой конфиденциальности</a>.</span>
+                    <input type="checkbox" id="agree" name="agree" required> Согласен с <a href="terms.html">условиями</a> и <a href="privacy.html">политикой конфиденциальности</a>.
                 </div>
                 <button type="submit">Зарегистрироваться</button>
             </form>
