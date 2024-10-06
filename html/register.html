@@ -9,11 +9,9 @@
   
   <!-- Подключение Firebase -->
   <script type="module">
-    // Импортируем Firebase модули
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-
-    // Конфигурация Firebase
+  
     const firebaseConfig = {
       apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
       authDomain: "artfolio-webn.firebaseapp.com",
@@ -23,50 +21,56 @@
       appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
       measurementId: "G-JDDYG1C6J1"
     };
-
-    // Инициализация Firebase
+  
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
-    console.log("Firebase инициализирован:", app);
-
+  
+    // Получаем список зарегистрированных пользователей из localStorage
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+  
     window.validateForm = function(event) {
       event.preventDefault();
-      
+  
       const nickname = document.getElementById('nickname').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const agreeCheckbox = document.getElementById('agree');
       
       let errorMessage = "";
-
-      // Проверка заполненности полей
+  
       if (!nickname || !email || !password) {
         errorMessage += "Все поля должны быть заполнены.\n";
       }
-
-      // Проверка корректности электронной почты
+  
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         errorMessage += "Введите корректный адрес электронной почты.\n";
       }
-
-      // Проверка согласия с условиями
+  
       if (!agreeCheckbox.checked) {
         errorMessage += "Вы должны согласиться с условиями и политикой конфиденциальности.\n";
       }
-
-      // Вывод ошибок, если они есть
+  
       if (errorMessage) {
         alert(errorMessage);
       } else {
-        // Регистрация пользователя
+        // Регистрация пользователя в Firebase
         createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             console.log("Регистрация прошла успешно:", userCredential);
+  
+            // Добавляем нового пользователя в массив registeredUsers
+            registeredUsers.push({
+              nickname: nickname,
+              email: email,
+              time: new Date().toLocaleString()
+            });
+  
+            // Сохраняем обновленный массив зарегистрированных пользователей в localStorage
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+  
             alert("Регистрация прошла успешно!");
-            // Перенаправление на главную страницу
-            window.location.href = 'main.html'; 
+            window.location.href = 'main.html';
           })
           .catch((error) => {
             console.error("Ошибка регистрации:", error);
@@ -75,6 +79,7 @@
       }
     }
   </script>
+  
 </head>
 <body>
     <!-- Header -->

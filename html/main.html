@@ -6,6 +6,24 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Artfolio.ru</title>
   <link rel="stylesheet" href="../css/main.css">
+
+  <script>
+    // Загрузка зарегистрированных пользователей из localStorage
+    window.onload = function() {
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+      const usersContainer = document.getElementById('registered-users');
+      if (registeredUsers.length > 0) {
+        registeredUsers.forEach(user => {
+          const userElement = document.createElement('p');
+          userElement.textContent = `Никнейм: ${user.nickname}, Email: ${user.email}, Зарегистрирован: ${user.time}`;
+          usersContainer.appendChild(userElement);
+        });
+      } else {
+        usersContainer.textContent = 'Пока нет зарегистрированных пользователей.';
+      }
+    }
+  </script>
 </head>
 <body>
     <!-- Header -->
@@ -68,5 +86,12 @@
             </div>
         </div>
     </section>
+
+    <div class="spacer"></div>
+    <section class="main-section">
+        <h1>Зарегистрированные пользователи</h1>
+        <div id="registered-users"></div> <!-- Контейнер для вывода зарегистрированных пользователей -->
+    </section>
+    
 </body>
 </html>
