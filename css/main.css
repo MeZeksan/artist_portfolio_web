@@ -14,8 +14,8 @@
 
 body {
   background-image: url(../svg/background.svg);
-  background-repeat: no-repeat; /* Отключает повторение изображения */
-  background-size: cover; /* Масштабирует изображение так, чтобы оно покрыло весь экран */
+  background-repeat: repeat; /* Отключает повторение изображения */
+  background-size: contain; /* Масштабирует изображение так, чтобы оно вписывалось в контейнер */
   background-position: center; /* Центрирует изображение на странице */
   background-color: #282828;
   font-family: 'MultiroundPro', sans-serif; /* Применяем шрифт ко всему телу */
