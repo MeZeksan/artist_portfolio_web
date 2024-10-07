@@ -128,10 +128,15 @@ h1 {
   margin-bottom: 40px;
 }
 
+.designer-cards-container {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 20px 0;
+}
+
 .designer-cards {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
+  display: inline-flex;
+  gap: 20px;
 }
 
 .card {
@@ -140,6 +145,9 @@ h1 {
   border-radius: 10px;
   text-align: center;
   width: 300px;
+  display: inline-block;
+  vertical-align: top;
+  box-sizing: border-box; /* Учитываем padding в общей ширине */
 }
 
 .card img {
@@ -152,18 +160,18 @@ h1 {
   color: #D4BE98;
   font-size: 24px;
   margin-bottom: 10px;
+  white-space: nowrap; /* Запрещаем перенос строк */
+  overflow: hidden; /* Скрываем текст, который не помещается */
+  text-overflow: ellipsis; /* Добавляем многоточие в конце */
 }
 
 .card p {
   color: #D4BE98;
   font-size: 16px;
   margin: 5px 0;
-}
-
-.price {
-  font-size: 20px;
-  color: #d86fa4;
-  margin: 15px 0;
+  white-space: nowrap; /* Запрещаем перенос строк */
+  overflow: hidden; /* Скрываем текст, который не помещается */
+  text-overflow: ellipsis; /* Добавляем многоточие в конце */
 }
 .spacer {
   height: 250px; /* Высота, которая удлинит страницу */

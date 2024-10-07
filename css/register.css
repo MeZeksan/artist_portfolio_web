@@ -130,3 +130,11 @@ h1 {
 .spacer {
   height: 250px; /* Высота, которая удлинит страницу */
 }
+.form-container input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}

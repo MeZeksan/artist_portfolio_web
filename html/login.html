@@ -7,34 +7,42 @@
   <title>Авторизация - Artfolio.ru</title>
   <link rel="stylesheet" href="../css/login.css">
   <script>
-    function validateLoginForm(event) {
-      event.preventDefault(); // Остановить отправку формы
-      
-      const email = document.querySelector('input[type="email"]').value;
-      const password = document.querySelector('input[type="password"]').value;
-      let errorMessage = "";
+    // Загрузка зарегистрированных пользователей из localStorage
+    window.onload = function() {
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 
-      // Проверка на пустые поля
-      if (!email || !password) {
-        errorMessage += "Все поля должны быть заполнены.\n";
-      }
+        const usersContainer = document.getElementById('registered-users');
+        if (registeredUsers.length > 0) {
+            registeredUsers.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'card';
 
-      // Проверка на корректность email
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        errorMessage += "Введите корректный адрес электронной почты.\n";
-      }
+                const img = document.createElement('img');
+                img.src = user.profilePhoto;
+                img.alt = user.nickname;
+                card.appendChild(img);
 
-      // Вывод ошибок
-      if (errorMessage) {
-        alert(errorMessage);
-      } else {
-        // Отправка формы (можно заменить на фактическую отправку данных)
-        alert("Форма успешно отправлена!");
-        // Здесь можно добавить логику для отправки формы на сервер
-      }
+                const h3 = document.createElement('h3');
+                h3.textContent = user.nickname;
+                card.appendChild(h3);
+
+                const email = document.createElement('p');
+                email.textContent = `Email: ${user.email}`;
+                card.appendChild(email);
+
+                const time = document.createElement('p');
+                time.textContent = `Зарегистрирован: ${user.time}`;
+                card.appendChild(time);
+
+                usersContainer.appendChild(card);
+            });
+        } else {
+            const noUsers = document.createElement('p');
+            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
+            usersContainer.appendChild(noUsers);
+        }
     }
-  </script>
+</script>
 </head>
 <body>
     <!-- Header -->
