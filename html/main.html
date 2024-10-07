@@ -6,12 +6,82 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Artfolio.ru</title>
   <link rel="stylesheet" href="../css/main.css">
+
+  <script>
+    // Загрузка зарегистрированных пользователей из localStorage
+    window.onload = function() {
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+        const usersContainer = document.getElementById('registered-users');
+        if (registeredUsers.length > 0) {
+            registeredUsers.forEach((user, index) => {
+                const card = createUserCard(user, index);
+                usersContainer.appendChild(card);
+            });
+        } else {
+            const noUsers = document.createElement('p');
+            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
+            usersContainer.appendChild(noUsers);
+        }
+    }
+
+    function createUserCard(user, index) {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = user.profilePhoto;
+        img.alt = user.nickname;
+        card.appendChild(img);
+
+        const h3 = document.createElement('h3');
+        h3.textContent = user.nickname;
+        card.appendChild(h3);
+
+        const email = document.createElement('p');
+        email.textContent = `${user.email}`;
+        card.appendChild(email);
+
+        const time = document.createElement('p');
+        time.textContent = `${user.time}`;
+        card.appendChild(time);
+
+        //удаление пользователя по кнопке из массива
+        
+        // const deleteButton = document.createElement('button');
+        // deleteButton.textContent = 'Удалить пользователя';
+        // deleteButton.addEventListener('click', () => deleteUser(index));
+        // card.appendChild(deleteButton);
+
+        return card;
+    }
+
+    function deleteUser(index) {
+        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        registeredUsers.splice(index, 1);
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+        // Обновляем отображение пользователей
+        const usersContainer = document.getElementById('registered-users');
+        usersContainer.innerHTML = '';
+        if (registeredUsers.length > 0) {
+            registeredUsers.forEach((user, index) => {
+                const card = createUserCard(user, index);
+                usersContainer.appendChild(card);
+            });
+        } else {
+            const noUsers = document.createElement('p');
+            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
+            usersContainer.appendChild(noUsers);
+        }
+    }
+  </script>
 </head>
 <body>
     <!-- Header -->
     <header>
         <nav class="navbar">
-            <div class="logo"><p href="index.html">ART<span>FOLIO</span></p></div> <!-- Ссылка на главную страницу -->
+            <div class="logo"><p href="main.html">ART<span>FOLIO</span></p></div> <!-- Ссылка на главную страницу -->
             <ul>
                 <li><a href="blog.html">Наш блог</a></li> <!-- Ссылка на блог -->
                 <li><a href="register.html">Регистрация</a></li> <!-- Ссылка на страницу регистрации -->
@@ -20,7 +90,6 @@
         </nav>
     </header>
     
-    </header>
     <div class="spacer"></div>
     <!-- Main Section -->
     <section class="main-section">
@@ -35,38 +104,13 @@
         </div>
     </section>
 
-    <!-- Designers Section -->
+    <!-- Artist Section -->
     <section class="designers">
-        <h2>НАШИ ДИЗАЙНЕРЫ</h2>
-        <div class="designer-cards">
-            <div class="card">
-                <img src="../images/bers.png" alt="Phosphinx">
-                <h3>PHOSPHIXX</h3>
-                <p>3 года</p>
-                <p>По договору</p>
-                <p class="price">30 000 Р.</p>
-                <button class="btn brownsmall">Подробнее</button>
-                <button class="btn pinksmall">Заказать</button>
-            </div>
-            <div class="card">
-                <img src="../images/MeZeksan.png" alt="Mezeksan">
-                <h3>MEZEKSAN</h3>
-                <p>1 год</p>
-                <p>По договору</p>
-                <p class="price">10 000 Р.</p>
-                <button class="btn brownsmall">Подробнее</button>
-                <button class="btn pinksmall">Заказать</button>
-            </div>
-            <div class="card">
-                <img src="../images/nefor.png" alt="Kazuma">
-                <h3>KAZUMA</h3>
-                <p>4 года</p>
-                <p>По договору</p>
-                <p class="price">35 000 Р.</p>
-                <button class="btn brownsmall">Подробнее</button>
-                <button class="btn pinksmall">Заказать</button>
-            </div>
+        <h2>НАШИ художники</h2>
+        <div class="designer-cards-container">
+            <div class="designer-cards" id="registered-users"></div> <!-- Контейнер для вывода зарегистрированных пользователей -->
         </div>
     </section>
+    
 </body>
 </html>

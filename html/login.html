@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Авторизация - Artfolio.ru</title>
+  <link rel="stylesheet" href="../css/login.css">
+  <script>
+    // Загрузка зарегистрированных пользователей из localStorage
+    window.onload = function() {
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+        const usersContainer = document.getElementById('registered-users');
+        if (registeredUsers.length > 0) {
+            registeredUsers.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const img = document.createElement('img');
+                img.src = user.profilePhoto;
+                img.alt = user.nickname;
+                card.appendChild(img);
+
+                const h3 = document.createElement('h3');
+                h3.textContent = user.nickname;
+                card.appendChild(h3);
+
+                const email = document.createElement('p');
+                email.textContent = `Email: ${user.email}`;
+                card.appendChild(email);
+
+                const time = document.createElement('p');
+                time.textContent = `Зарегистрирован: ${user.time}`;
+                card.appendChild(time);
+
+                usersContainer.appendChild(card);
+            });
+        } else {
+            const noUsers = document.createElement('p');
+            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
+            usersContainer.appendChild(noUsers);
+        }
+    }
+</script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <div class="logo"><a href="main.html">ART<span>FOLIO</span></a></div>
+            <ul>
+                <li><a href="blog.html">Наш блог</a></li>
+                <li><a href="register.html">Регистрация</a></li>
+                <li><a href="login.html">Войти</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="spacer"></div>
+    <!-- Main Section -->
+    <section class="main-section">
+        <h1>Авторизация</h1>
+        <div class="form-container">
+            <form onsubmit="validateLoginForm(event)">
+                <input type="email" placeholder="Электронная почта" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+    </section>
+</body>
+</html>
