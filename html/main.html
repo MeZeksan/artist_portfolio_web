@@ -15,31 +15,7 @@
         const usersContainer = document.getElementById('registered-users');
         if (registeredUsers.length > 0) {
             registeredUsers.forEach((user, index) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-
-                const img = document.createElement('img');
-                img.src = user.profilePhoto;
-                img.alt = user.nickname;
-                card.appendChild(img);
-
-                const h3 = document.createElement('h3');
-                h3.textContent = user.nickname;
-                card.appendChild(h3);
-
-                const email = document.createElement('p');
-                email.textContent = `${user.email}`;
-                card.appendChild(email);
-
-                const time = document.createElement('p');
-                time.textContent = `${user.time}`;
-                card.appendChild(time);
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Удалить пользователя';
-                deleteButton.addEventListener('click', () => deleteUser(index));
-                card.appendChild(deleteButton);
-
+                const card = createUserCard(user, index);
                 usersContainer.appendChild(card);
             });
         } else {
@@ -47,6 +23,37 @@
             noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
             usersContainer.appendChild(noUsers);
         }
+    }
+
+    function createUserCard(user, index) {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = user.profilePhoto;
+        img.alt = user.nickname;
+        card.appendChild(img);
+
+        const h3 = document.createElement('h3');
+        h3.textContent = user.nickname;
+        card.appendChild(h3);
+
+        const email = document.createElement('p');
+        email.textContent = `${user.email}`;
+        card.appendChild(email);
+
+        const time = document.createElement('p');
+        time.textContent = `${user.time}`;
+        card.appendChild(time);
+
+        //удаление пользователя по кнопке из массива
+        
+        // const deleteButton = document.createElement('button');
+        // deleteButton.textContent = 'Удалить пользователя';
+        // deleteButton.addEventListener('click', () => deleteUser(index));
+        // card.appendChild(deleteButton);
+
+        return card;
     }
 
     function deleteUser(index) {
@@ -57,34 +64,16 @@
         // Обновляем отображение пользователей
         const usersContainer = document.getElementById('registered-users');
         usersContainer.innerHTML = '';
-        registeredUsers.forEach((user, index) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-
-            const img = document.createElement('img');
-            img.src = user.profilePhoto;
-            img.alt = user.nickname;
-            card.appendChild(img);
-
-            const h3 = document.createElement('h3');
-            h3.textContent = user.nickname;
-            card.appendChild(h3);
-
-            const email = document.createElement('p');
-            email.textContent = `${user.email}`;
-            card.appendChild(email);
-
-            const time = document.createElement('p');
-            time.textContent = `${user.time}`;
-            card.appendChild(time);
-
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Удалить пользователя';
-            deleteButton.addEventListener('click', () => deleteUser(index));
-            card.appendChild(deleteButton);
-
-            usersContainer.appendChild(card);
-        });
+        if (registeredUsers.length > 0) {
+            registeredUsers.forEach((user, index) => {
+                const card = createUserCard(user, index);
+                usersContainer.appendChild(card);
+            });
+        } else {
+            const noUsers = document.createElement('p');
+            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
+            usersContainer.appendChild(noUsers);
+        }
     }
   </script>
 </head>

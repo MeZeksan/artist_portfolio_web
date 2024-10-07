@@ -20,6 +20,7 @@ body {
   background-color: #282828;
   font-family: 'MultiroundPro', sans-serif; /* Применяем шрифт ко всему телу */
 }
+
 header {
   position: fixed;
   top: 0;
@@ -29,6 +30,7 @@ header {
   z-index: 1000; /* Разместить навигацию поверх остальных элементов */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Добавить тень для отделения от контента */
 }
+
 .navbar a {
   color: #D4BE98;
   text-decoration: none; /* Убираем подчеркивание */
@@ -37,6 +39,7 @@ header {
 .navbar a:hover {
   color: #d86fa4; /* Изменение цвета при наведении, можно настроить */
 }
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -93,13 +96,14 @@ h1 {
   margin: 10px;
 }
 
-.pinkbig{
+.pinkbig {
   border-radius: 20px; /* Скругление углов */
   padding: 30px 60px;
   font-size: 24px;
   background-color: #d86fa4;
   color: #282828;
 }
+
 .pinksmall {
   background-color: #d86fa4;
   color: #282828;
@@ -112,6 +116,7 @@ h1 {
   padding: 30px 90px;
   font-size: 24px;
 }
+
 .brownsmall {
   background-color: #3C3836;
   color: #c4b080;
@@ -151,8 +156,11 @@ h1 {
 }
 
 .card img {
-  max-width: 100%;
-  border-radius: 10px;
+  width: 200px;
+  height: 250px;
+  border-radius: 15%;
+  border: 3px solid #d86fa4;
+  object-fit: cover;
   margin-bottom: 15px;
 }
 
@@ -173,6 +181,7 @@ h1 {
   overflow: hidden; /* Скрываем текст, который не помещается */
   text-overflow: ellipsis; /* Добавляем многоточие в конце */
 }
+
 .spacer {
   height: 250px; /* Высота, которая удлинит страницу */
 }
