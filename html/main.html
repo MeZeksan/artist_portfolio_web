@@ -46,46 +46,54 @@
         time.textContent = `${user.time}`;
         card.appendChild(time);
 
-        //удаление пользователя по кнопке из массива
-        
-        // const deleteButton = document.createElement('button');
-        // deleteButton.textContent = 'Удалить пользователя';
-        // deleteButton.addEventListener('click', () => deleteUser(index));
-        // card.appendChild(deleteButton);
+        // Добавляем обработчик события для открытия модального окна
+        card.addEventListener('click', () => openModal(user));
 
         return card;
     }
 
-    function deleteUser(index) {
-        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-        registeredUsers.splice(index, 1);
-        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    // Открытие модального окна
+    function openModal(user) {
+        document.getElementById('modal-avatar').src = user.profilePhoto;
+        document.getElementById('modal-name').textContent = user.nickname;
+        document.getElementById('modal-email').textContent = user.email;
+        document.getElementById('modal-time').textContent = user.time;
 
-        // Обновляем отображение пользователей
-        const usersContainer = document.getElementById('registered-users');
-        usersContainer.innerHTML = '';
-        if (registeredUsers.length > 0) {
-            registeredUsers.forEach((user, index) => {
-                const card = createUserCard(user, index);
-                usersContainer.appendChild(card);
-            });
-        } else {
-            const noUsers = document.createElement('p');
-            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
-            usersContainer.appendChild(noUsers);
-        }
+        const modal = document.getElementById('myModal');
+        modal.style.display = "block";
     }
+
+    // Закрытие модального окна
+    function closeModal() {
+        const modal = document.getElementById('myModal');
+        modal.style.display = "none";
+    }
+
+    // Обработчики событий
+    document.addEventListener('DOMContentLoaded', () => {
+        // Закрытие модального окна при нажатии на кнопку закрытия
+        document.querySelector('.close').addEventListener('click', closeModal);
+
+        // Закрытие модального окна при нажатии вне его
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('myModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
   </script>
+
 </head>
 <body>
     <!-- Header -->
     <header>
         <nav class="navbar">
-            <div class="logo"><p href="main.html">ART<span>FOLIO</span></p></div> <!-- Ссылка на главную страницу -->
+            <div class="logo"><p href="main.html">ART<span>FOLIO</span></p></div>
             <ul>
-                <li><a href="blog.html">Наш блог</a></li> <!-- Ссылка на блог -->
-                <li><a href="register.html">Регистрация</a></li> <!-- Ссылка на страницу регистрации -->
-                <li><a href="login.html">Войти</a></li> <!-- Ссылка на страницу входа -->
+                <li><a href="blog.html">Наш блог</a></li>
+                <li><a href="register.html">Регистрация</a></li>
+                <li><a href="login.html">Войти</a></li>
             </ul>
         </nav>
     </header>
@@ -108,9 +116,19 @@
     <section class="designers">
         <h2>НАШИ художники</h2>
         <div class="designer-cards-container">
-            <div class="designer-cards" id="registered-users"></div> <!-- Контейнер для вывода зарегистрированных пользователей -->
+            <div class="designer-cards" id="registered-users"></div>
         </div>
     </section>
-    
+
+    <!-- Модальное окно -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modal-avatar" src="" alt="Avatar" style="width: 100px; border-radius: 50%;">
+            <h2 id="modal-name">Имя художника</h2>
+            <p id="modal-email">email@example.com</p>
+            <p id="modal-time">Время регистрации</p>
+        </div>
+    </div>
 </body>
 </html>

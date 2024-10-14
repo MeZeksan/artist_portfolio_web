@@ -185,3 +185,66 @@ h1 {
 .spacer {
   height: 250px; /* Высота, которая удлинит страницу */
 }
+
+
+/* Стили для модального окна */
+.modal {
+  display: none; /* Скрыть модальное окно по умолчанию */
+  position: fixed;
+  z-index: 1000; /* Обеспечивает отображение над другими элементами */
+  left: 0;
+  top: 0;
+  width: 100%; /* Полная ширина */
+  height: 100%; /* Полная высота */
+  overflow: auto; /* Добавляет прокрутку, если нужно */
+  background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон */
+}
+
+.modal-content {
+  background-color: #333;
+  margin: 15% auto; /* Центрирует модальное окно */
+  padding: 20px;
+  border: 1px solid #d86fa4; /* Рамка */
+  width: 80%; /* Ширина модального окна */
+  max-width: 600px; /* Максимальная ширина */
+  border-radius: 10px;
+  color: #D4BE98;
+  text-align: center;
+}
+/* Добавьте этот код в конец вашего CSS файла */
+.modal-content img {
+  margin-bottom: 20px;
+  object-fit: cover;
+  border-radius: 50%;
+  width: 300px !important; /* Увеличен размер аватарки */
+  height: 300px !important; /* Увеличен размер аватарки */
+  margin: 20px;
+}
+
+.modal-content h2 {
+  font-size: 32px; /* Увеличиваем размер заголовка */
+  color: #D4BE98; /* Цвет текста заголовка */
+  margin: 12px;
+}
+
+.modal-content p {
+  font-size: 20px; /* Увеличиваем размер текста */
+  color: #D4BE98; /* Цвет текста */
+  margin: 12px;
+}
+
+.close {
+  color: #d86fa4; /* Цвет кнопки закрытия */
+  float: right; /* Размещает кнопку в правом верхнем углу */
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #fff; /* Изменение цвета при наведении */
+  text-decoration: none;
+  cursor: pointer; /* Указатель для курсора */
+}
+
+
