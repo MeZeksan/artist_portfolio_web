@@ -211,6 +211,27 @@ h1 {
   color: #D4BE98;
   text-align: center;
 }
+/* Добавьте этот код в конец вашего CSS файла */
+.modal-content img {
+  margin-bottom: 20px;
+  object-fit: cover;
+  border-radius: 50%;
+  width: 300px !important; /* Увеличен размер аватарки */
+  height: 300px !important; /* Увеличен размер аватарки */
+  margin: 20px;
+}
+
+.modal-content h2 {
+  font-size: 32px; /* Увеличиваем размер заголовка */
+  color: #D4BE98; /* Цвет текста заголовка */
+  margin: 12px;
+}
+
+.modal-content p {
+  font-size: 20px; /* Увеличиваем размер текста */
+  color: #D4BE98; /* Цвет текста */
+  margin: 12px;
+}
 
 .close {
   color: #d86fa4; /* Цвет кнопки закрытия */
