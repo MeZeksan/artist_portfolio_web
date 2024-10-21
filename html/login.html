@@ -6,43 +6,79 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Авторизация - Artfolio.ru</title>
   <link rel="stylesheet" href="../css/login.css">
-  <script>
-    // Загрузка зарегистрированных пользователей из localStorage
-    window.onload = function() {
-        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    // Ваши настройки Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
+        authDomain: "artfolio-webn.firebaseapp.com",
+        projectId: "artfolio-webn",
+        storageBucket: "artfolio-webn.appspot.com",
+        messagingSenderId: "283058220280",
+        appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
+        measurementId: "G-JDDYG1C6J1"
+    };
 
-        const usersContainer = document.getElementById('registered-users');
-        if (registeredUsers.length > 0) {
-            registeredUsers.forEach(user => {
-                const card = document.createElement('div');
-                card.className = 'card';
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
 
-                const img = document.createElement('img');
-                img.src = user.profilePhoto;
-                img.alt = user.nickname;
-                card.appendChild(img);
+    function validateLoginForm(event) {
+        event.preventDefault(); // Предотвращаем отправку формы
 
-                const h3 = document.createElement('h3');
-                h3.textContent = user.nickname;
-                card.appendChild(h3);
+        const emailInput = event.target.querySelector('input[type="email"]');
+        const passwordInput = event.target.querySelector('input[type="password"]');
 
-                const email = document.createElement('p');
-                email.textContent = `Email: ${user.email}`;
-                card.appendChild(email);
+        const email = emailInput.value;
+        const password = passwordInput.value;
 
-                const time = document.createElement('p');
-                time.textContent = `Зарегистрирован: ${user.time}`;
-                card.appendChild(time);
-
-                usersContainer.appendChild(card);
-            });
-        } else {
-            const noUsers = document.createElement('p');
-            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
-            usersContainer.appendChild(noUsers);
+        // Проверка формата электронной почты
+        if (!validateEmail(email)) {
+            showNotification('Введите корректный адрес электронной почты.');
+            return;
         }
+
+        // Проверка длины пароля
+        if (password.length < 6) {
+            showNotification('Пароль должен содержать минимум 6 символов.');
+            return;
+        }
+
+        // Проверка учетных данных с помощью Firebase
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // Успешный вход
+                showNotification('Успешный вход!', 'success');
+                // Здесь можно перенаправить пользователя на другую страницу
+                // window.location.href = 'main.html';
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                showNotification('Ошибка входа: ' + errorMessage);
+            });
     }
-</script>
+
+    function validateEmail(email) {
+        const re = /^[^s@]+@[^s@]+.[^s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    function showNotification(message, type = 'error') {
+        const notification = document.createElement('div');
+        notification.className = 'notification ' + type;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+        
+        // Показать уведомление
+        notification.style.display = 'block';
+
+        // Скрыть уведомление через 3 секунды
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+  </script>
 </head>
 <body>
     <!-- Header -->
