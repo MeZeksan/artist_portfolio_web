@@ -1,103 +1,161 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Artfolio.ru</title>
-  <link rel="stylesheet" href="../css/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Artfolio.ru</title>
+    <link rel="stylesheet" href="../css/main.css">
 
-  <script>
-    // Загрузка зарегистрированных пользователей из localStorage
-    window.onload = function() {
-        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 
-        const usersContainer = document.getElementById('registered-users');
-        if (registeredUsers.length > 0) {
-            registeredUsers.forEach((user, index) => {
-                const card = createUserCard(user, index);
-                usersContainer.appendChild(card);
-            });
-        } else {
-            const noUsers = document.createElement('p');
-            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
-            usersContainer.appendChild(noUsers);
-        }
-    }
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
+            authDomain: "artfolio-webn.firebaseapp.com",
+            projectId: "artfolio-webn",
+            storageBucket: "artfolio-webn.appspot.com",
+            messagingSenderId: "283058220280",
+            appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
+            measurementId: "G-JDDYG1C6J1"
+        };
 
-    function createUserCard(user, index) {
-        const card = document.createElement('div');
-        card.className = 'card';
+        // Проверяем, была ли уже инициализирована Firebase
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+        const db = getFirestore(app);
 
-        const img = document.createElement('img');
-        img.src = user.profilePhoto;
-        img.alt = user.nickname;
-        card.appendChild(img);
+        // Получение пользователей из Firestore
+        async function loadUsers() {
+            const usersContainer = document.getElementById('registered-users');
 
-        const h3 = document.createElement('h3');
-        h3.textContent = user.nickname;
-        card.appendChild(h3);
+            try {
+                const querySnapshot = await getDocs(collection(db, 'users'));
 
-        const email = document.createElement('p');
-        email.textContent = `${user.email}`;
-        card.appendChild(email);
-
-        const time = document.createElement('p');
-        time.textContent = `${user.time}`;
-        card.appendChild(time);
-
-        // Добавляем обработчик события для открытия модального окна
-        card.addEventListener('click', () => openModal(user));
-
-        return card;
-    }
-
-    // Открытие модального окна
-    function openModal(user) {
-        document.getElementById('modal-avatar').src = user.profilePhoto;
-        document.getElementById('modal-name').textContent = user.nickname;
-        document.getElementById('modal-email').textContent = user.email;
-        document.getElementById('modal-time').textContent = user.time;
-
-        const modal = document.getElementById('myModal');
-        modal.style.display = "block";
-    }
-
-    // Закрытие модального окна
-    function closeModal() {
-        const modal = document.getElementById('myModal');
-        modal.style.display = "none";
-    }
-
-    // Обработчики событий
-    document.addEventListener('DOMContentLoaded', () => {
-        // Закрытие модального окна при нажатии на кнопку закрытия
-        document.querySelector('.close').addEventListener('click', closeModal);
-
-        // Закрытие модального окна при нажатии вне его
-        window.addEventListener('click', (event) => {
-            const modal = document.getElementById('myModal');
-            if (event.target === modal) {
-                closeModal();
+                if (querySnapshot.empty) {
+                    const noUsers = document.createElement('p');
+                    noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
+                    usersContainer.appendChild(noUsers);
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        const card = createUserCard(user);
+                        usersContainer.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                console.error("Ошибка при получении пользователей: ", error);
+                const errorMsg = document.createElement('p');
+                errorMsg.textContent = 'Произошла ошибка при загрузке пользователей.';
+                usersContainer.appendChild(errorMsg);
             }
+        }
+
+        // Функция создания карточки пользователя
+        function createUserCard(user) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const img = document.createElement('img');
+            img.src = user.profilePhoto || 'default-avatar.png'; // Дефолтное изображение
+            img.alt = user.nickname || 'No name';
+            card.appendChild(img);
+
+            const h3 = document.createElement('h3');
+            h3.textContent = user.nickname || 'No name';
+            card.appendChild(h3);
+
+            // Добавляем обработчик клика для открытия модального окна
+            card.addEventListener('click', function() {
+                openModal(user);
+            });
+
+            return card;
+        }
+
+        // Открытие модального окна
+        function openModal(user) {
+            document.getElementById('modal-avatar').src = user.profilePhoto || 'default-avatar.png';
+            document.getElementById('modal-name').textContent = user.nickname || 'No name';
+            document.getElementById('modal-email').textContent = user.email || 'No email';
+            document.getElementById('modal-time').textContent = user.time || 'No registration time';
+
+            const modal = document.getElementById('myModal');
+            modal.style.display = "block";
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = "none";
+        }
+
+        // Обработчики событий
+        document.addEventListener('DOMContentLoaded', () => {
+            // Закрытие модального окна при нажатии на кнопку закрытия
+            document.querySelector('.close').addEventListener('click', closeModal);
+
+            // Закрытие модального окна при нажатии вне его
+            window.addEventListener('click', (event) => {
+                const modal = document.getElementById('myModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
         });
-    });
-  </script>
+
+        // Функция для проверки состояния входа
+        function updateNavbar() {
+            const userEmail = localStorage.getItem('userEmail');
+            const navbar = document.getElementById('navbar-links');
+
+            if (userEmail) {
+                navbar.innerHTML = `
+                    <li><a href="blog.html">Наш блог</a></li>
+                    <li><a href="#" id="logout">Выйти</a></li>
+                `;
+
+                // Добавляем обработчик события для выхода
+                document.getElementById('logout').addEventListener('click', () => {
+                    localStorage.removeItem('userEmail'); // Удаляем email из localStorage
+                    alert('Вы вышли из системы.'); // Сообщение о выходе
+                    window.location.reload(); // Перезагружаем страницу
+                });
+            } else {
+                navbar.innerHTML = `
+                    <li><a href="blog.html">Наш блог</a></li>
+                    <li><a href="register.html">Регистрация</a></li>
+                    <li><a href="login.html">Войти</a></li>
+                `;
+            }
+        }
+
+        window.onload = async function() {
+            updateNavbar(); // Обновляем navbar при загрузке страницы
+            await loadUsers(); // Загружаем пользователей после обновления navbar
+        };
+    </script>
 
 </head>
+
 <body>
     <!-- Header -->
     <header>
         <nav class="navbar">
-            <div class="logo"><p href="main.html">ART<span>FOLIO</span></p></div>
-            <ul>
+            <div class="logo">
+                <p href="main.html">ART<span>FOLIO</span></p>
+            </div>
+            <ul id="navbar-links">
                 <li><a href="blog.html">Наш блог</a></li>
                 <li><a href="register.html">Регистрация</a></li>
                 <li><a href="login.html">Войти</a></li>
             </ul>
         </nav>
     </header>
-    
+
     <div class="spacer"></div>
     <!-- Main Section -->
     <section class="main-section">
@@ -129,5 +187,7 @@
             <p id="modal-time">Время регистрации</p>
         </div>
     </div>
+
 </body>
+
 </html>

@@ -1,49 +1,55 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Авторизация - Artfolio.ru</title>
-  <link rel="stylesheet" href="../css/login.css">
-  <script>
-    // Загрузка зарегистрированных пользователей из localStorage
-    window.onload = function() {
-        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Авторизация - Artfolio.ru</title>
+    <link rel="stylesheet" href="../css/login.css">
 
-        const usersContainer = document.getElementById('registered-users');
-        if (registeredUsers.length > 0) {
-            registeredUsers.forEach(user => {
-                const card = document.createElement('div');
-                card.className = 'card';
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
-                const img = document.createElement('img');
-                img.src = user.profilePhoto;
-                img.alt = user.nickname;
-                card.appendChild(img);
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
+            authDomain: "artfolio-webn.firebaseapp.com",
+            projectId: "artfolio-webn",
+            storageBucket: "artfolio-webn.appspot.com",
+            messagingSenderId: "283058220280",
+            appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
+            measurementId: "G-JDDYG1C6J1"
+        };
 
-                const h3 = document.createElement('h3');
-                h3.textContent = user.nickname;
-                card.appendChild(h3);
+        // Проверяем, была ли уже инициализирована Firebase
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+        const auth = getAuth(app);
 
-                const email = document.createElement('p');
-                email.textContent = `Email: ${user.email}`;
-                card.appendChild(email);
+        // Функция для проверки логина
+        window.validateLoginForm = async function (event) {
+            event.preventDefault(); // Отменяем отправку формы
 
-                const time = document.createElement('p');
-                time.textContent = `Зарегистрирован: ${user.time}`;
-                card.appendChild(time);
+            const email = event.target[0].value; // Получаем email
+            const password = event.target[1].value; // Получаем пароль
 
-                usersContainer.appendChild(card);
-            });
-        } else {
-            const noUsers = document.createElement('p');
-            noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
-            usersContainer.appendChild(noUsers);
-        }
-    }
-</script>
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                localStorage.setItem('userEmail', user.email); // Сохраняем email в localStorage
+                alert(`Добро пожаловать, ${user.email}!`); // Сообщение приветствия
+                window.location.href = "main.html"; // Перенаправление на главную страницу
+            } catch (error) {
+                console.error("Ошибка авторизации: ", error);
+                alert("Неверный email или пароль. Попробуйте еще раз."); // Сообщение об ошибке
+            }
+        };
+
+    </script>
 </head>
+
 <body>
     <!-- Header -->
     <header>
@@ -56,7 +62,7 @@
             </ul>
         </nav>
     </header>
-    
+
     <div class="spacer"></div>
     <!-- Main Section -->
     <section class="main-section">
@@ -70,4 +76,5 @@
         </div>
     </section>
 </body>
+
 </html>

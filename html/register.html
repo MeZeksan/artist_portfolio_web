@@ -1,104 +1,114 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Регистрация - Artfolio.ru</title>
-  <link rel="stylesheet" href="../css/register.css">
-  
-  <!-- Подключение Firebase -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Регистрация - Artfolio.ru</title>
+    <link rel="stylesheet" href="../css/register.css">
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
-        authDomain: "artfolio-webn.firebaseapp.com",
-        projectId: "artfolio-webn",
-        storageBucket: "artfolio-webn.appspot.com",
-        messagingSenderId: "283058220280",
-        appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
-        measurementId: "G-JDDYG1C6J1"
-    };
+    <!-- Подключение Firebase -->
+    <script type="module">
+        import { getApps, initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
+            authDomain: "artfolio-webn.firebaseapp.com",
+            projectId: "artfolio-webn",
+            storageBucket: "artfolio-webn.appspot.com",
+            messagingSenderId: "283058220280",
+            appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
+            measurementId: "G-JDDYG1C6J1"
+        };
 
-    // Получаем список зарегистрированных пользователей из localStorage
-    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        // Проверяем, была ли уже инициализирована Firebase
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    window.validateForm = function(event) {
-        event.preventDefault();
+        window.validateForm = function (event) {
+            event.preventDefault();
 
-        const nickname = document.getElementById('nickname').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const fileInput = document.getElementById('profile_photo');
-        const file = fileInput.files[0];
-        const agreeCheckbox = document.getElementById('agree');
+            const nickname = document.getElementById('nickname').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const fileInput = document.getElementById('profile_photo');
+            const file = fileInput.files[0];
+            const agreeCheckbox = document.getElementById('agree');
 
-        let errorMessage = "";
+            let errorMessage = "";
 
-        if (!nickname || !email || !password || !file) {
-            errorMessage += "Все поля должны быть заполнены.\n";
-        }
-
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            errorMessage += "Введите корректный адрес электронной почты.\n";
-        }
-
-        if (!agreeCheckbox.checked) {
-            errorMessage += "Вы должны согласиться с условиями и политикой конфиденциальности.\n";
-        }
-
-        if (errorMessage) {
-            alert(errorMessage);
-        } else {
-            // Проверка типа файла
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Пожалуйста, загрузите изображение в формате JPEG, PNG или GIF.');
-                return;
+            if (!nickname || !email || !password || !file) {
+                errorMessage += "Все поля должны быть заполнены.\n";
             }
 
-            // Чтение файла как Data URL
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const profilePhoto = event.target.result;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                errorMessage += "Введите корректный адрес электронной почты.\n";
+            }
 
-                // Регистрация пользователя в Firebase
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        console.log("Регистрация прошла успешно:", userCredential);
+            // Проверка на размер изображения (например, 2MB)
+            const maxFileSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxFileSize) {
+                errorMessage += "Размер файла не должен превышать 2MB.\n";
+            }
 
-                        // Добавляем нового пользователя в массив registeredUsers
-                        registeredUsers.push({
-                            nickname: nickname,
-                            email: email,
-                            profilePhoto: profilePhoto,
-                            time: new Date().toLocaleString()
+            if (!agreeCheckbox.checked) {
+                errorMessage += "Вы должны согласиться с условиями и политикой конфиденциальности.\n";
+            }
+
+            if (errorMessage) {
+                alert(errorMessage);
+            } else {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const profilePhoto = event.target.result;
+
+                    // Регистрация пользователя в Firebase Authentication
+                    createUserWithEmailAndPassword(auth, email, password)
+                        .then(async (userCredential) => {
+                            const user = userCredential.user;
+                            console.log("Регистрация прошла успешно:", user);
+
+                            // Сохранение данных пользователя в Firestore
+                            try {
+                                await addDoc(collection(db, "users"), {
+                                    nickname: nickname,
+                                    email: email,
+                                    profilePhoto: profilePhoto,
+                                    time: new Date().toLocaleString()
+                                });
+
+                                alert("Регистрация прошла успешно!");
+                                window.location.href = 'main.html';
+                            } catch (error) {
+                                if (error.code === 'auth/email-already-in-use') {
+                                    alert('Пользователь уже зарегистрирован'); // Ваш текст ошибки на русском
+                                } else {
+                                    console.error("Ошибка сохранения данных в Firestore:", error);
+                                    alert("Ошибка сохранения данных. Попробуйте еще раз.");
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            if (error.code === 'auth/email-already-in-use') {
+                                console.error("Ошибка регистрации:", error);
+                                alert("Пользователь уже зарегистрирован");
+                            } else {
+                                console.error("Ошибка :", error);
+                            }
                         });
-
-                        // Сохраняем обновленный массив зарегистрированных пользователей в localStorage
-                        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-
-                        alert("Регистрация прошла успешно!");
-                        window.location.href = 'main.html';
-                    })
-                    .catch((error) => {
-                        console.error("Ошибка регистрации:", error);
-                        alert(error.message);
-                    });
-            };
-            reader.readAsDataURL(file);
+                };
+                reader.readAsDataURL(file);
+            }
         }
-    }
-</script>
+    </script>
 </head>
+
 <body>
-    <!-- Header -->
     <header>
         <nav class="navbar">
             <div class="logo"><a href="main.html">ART<span>FOLIO</span></a></div>
@@ -109,26 +119,28 @@
             </ul>
         </nav>
     </header>
-    
+
     <div class="spacer"></div>
 
     <div class="main-section">
         <h1>Регистрация</h1>
         <div class="form-container">
-          <form onsubmit="validateForm(event)">
-              <input type="text" id="nickname" name="nickname" placeholder="Никнейм" required>
-              <input type="email" id="email" name="email" placeholder="Электронная почта" required>
-              <input type="password" id="password" name="password" placeholder="Пароль" required>
-              <h5>Добавьте вашу аватарку</h6>
-              <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
-              <div class="checkboxes">
-                  <input type="checkbox" id="agree" name="agree" required> Согласен с <a href="terms.html">условиями</a> и <a href="privacy.html">политикой конфиденциальности</a>.
-              </div>
-              <button type="submit">Зарегистрироваться</button>
-          </form>
-      </div>
+            <form onsubmit="validateForm(event)">
+                <input type="text" id="nickname" name="nickname" placeholder="Никнейм" required>
+                <input type="email" id="email" name="email" placeholder="Электронная почта" required>
+                <input type="password" id="password" name="password" placeholder="Пароль" required>
+                <h5>Добавьте вашу аватарку</h5>
+                <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
+                <div class="checkboxes">
+                    <input type="checkbox" id="agree" name="agree" required> Согласен с <a
+                        href="terms.html">условиями</a> и <a href="privacy.html">политикой конфиденциальности</a>.
+                </div>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+        </div>
     </div>
 
     <div class="spacer"></div>
 </body>
+
 </html>
