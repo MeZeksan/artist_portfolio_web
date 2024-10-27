@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль художника</title>
+    <link rel="stylesheet" href="../css/artist_profile.css">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
+            authDomain: "artfolio-webn.firebaseapp.com",
+            projectId: "artfolio-webn",
+            storageBucket: "artfolio-webn.appspot.com",
+            messagingSenderId: "283058220280",
+            appId: "1:283058220280:web:d57ca1f0ef6db078e25f0d",
+            measurementId: "G-JDDYG1C6J1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUserId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                loadArtist();
+            } else {
+                // Перенаправление на страницу входа, если пользователь не авторизован
+                window.location.href = "login.html";
+            }
+        });
+
+        async function loadArtist() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const artistId = urlParams.get('id') || 'zk8kicwtP3HXVKwLxvb7'; // Используем заданный ID по умолчанию
+            console.log("Полученный artistId:", artistId); // Отладочный вывод
+
+            if (!artistId) {
+                document.getElementById('artist-info').textContent = 'ID художника не указан.';
+                return;
+            }
+
+            try {
+                const docRef = doc(db, 'users', artistId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const user = docSnap.data();
+                    document.getElementById('artist-avatar').src = user.profilePhoto || 'default-avatar.png';
+                    document.getElementById('artist-name').textContent = user.nickname || 'Имя не указано';
+                    document.getElementById('artist-email').textContent = user.email || 'Email не указан';
+                    document.getElementById('artist-time').textContent = user.time || 'Дата регистрации не указана';
+                    document.getElementById('artist-description').textContent = user.description || 'Описание отсутствует';
+
+                    // Показываем возможности редактирования, если это профиль текущего пользователя
+                    if (artistId === currentUserId) {
+                        document.getElementById('edit-section').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('artist-info').textContent = 'Художник не найден.';
+                }
+            } catch (error) {
+                console.error("Ошибка при получении данных художника: ", error);
+                document.getElementById('artist-info').textContent = 'Произошла ошибка при загрузке данных художника.';
+            }
+        }
+
+        async function updateDescription() {
+            const newDescription = document.getElementById('description-input').value;
+            const docRef = doc(db, 'users', currentUserId);
+
+            try {
+                await updateDoc(docRef, {
+                    description: newDescription
+                });
+                document.getElementById('artist-description').textContent = newDescription;
+                alert("Описание обновлено!");
+            } catch (error) {
+                console.error("Ошибка при обновлении описания: ", error);
+            }
+        }
+
+        async function addArtwork() {
+            const artworkUrl = document.getElementById('artwork-url').value;
+            const docRef = doc(db, 'users', currentUserId);
+
+            try {
+                await updateDoc(docRef, {
+                    artworks: arrayUnion(artworkUrl)
+                });
+                alert("Работа добавлена!");
+                document.getElementById('artwork-url').value = ''; // очищаем поле ввода
+            } catch (error) {
+                console.error("Ошибка при добавлении работы: ", error);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <section id="artist-info">
+        <img id="artist-avatar" src="default-avatar.png" alt="Avatar">
+        <h2 id="artist-name">Имя художника</h2>
+        <p id="artist-email">email@example.com</p>
+        <p id="artist-time">Дата регистрации</p>
+        <p id="artist-description">Описание художника</p>
+        <a href="main.html" class="btn-back">Назад</a>
+    </section>
+
+    <!-- Секция для редактирования профиля, видна только текущему пользователю -->
+    <section id="edit-section" style="display: none;">
+        <h3>Редактировать профиль</h3>
+        
+        <!-- Обновление описания -->
+        <label for="description-input">Описание:</label>
+        <textarea id="description-input" placeholder="Введите новое описание"></textarea>
+        <button onclick="updateDescription()">Обновить описание</button>
+        
+        <!-- Добавление работы -->
+        <label for="artwork-url">URL работы:</label>
+        <input type="url" id="artwork-url" placeholder="Введите URL работы">
+        <button onclick="addArtwork()">Добавить работу</button>
+    </section>
+</body>
+</html>

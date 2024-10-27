@@ -12,6 +12,7 @@
     <script type="module">
         import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
 
         // Конфигурация Firebase
         const firebaseConfig = {
@@ -27,6 +28,7 @@
         // Проверяем, была ли уже инициализирована Firebase
         const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
         const auth = getAuth(app);
+        const db = getFirestore(app); // Инициализируем Firestore
 
         // Функция для проверки логина
         window.validateLoginForm = async function (event) {
@@ -38,15 +40,35 @@
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+
                 localStorage.setItem('userEmail', user.email); // Сохраняем email в localStorage
-                alert(`Добро пожаловать, ${user.email}!`); // Сообщение приветствия
-                window.location.href = "main.html"; // Перенаправление на главную страницу
+
+                // Ищем пользователя в коллекции users по email
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0];
+                    const userId = userDoc.id; // Получаем ID документа пользователя
+                    localStorage.setItem('userId', userId); // Сохраняем ID пользователя
+
+                    const userData = userDoc.data();
+                    const artistId = userData.artistId; // Убедитесь, что в документе есть поле artistId
+                    localStorage.setItem('artistId', artistId); // Сохраняем artistId в localStorage
+
+                    alert(`Добро пожаловать, ${user.email}!`); // Сообщение приветствия
+                    window.location.href = "main.html"; // Перенаправление на главную страницу
+                } else {
+                    console.log("Пользователь не найден в коллекции users.");
+                    alert("Пользователь не найден в системе."); // Сообщение об ошибке
+                }
+
             } catch (error) {
                 console.error("Ошибка авторизации: ", error);
                 alert("Неверный email или пароль. Попробуйте еще раз."); // Сообщение об ошибке
             }
         };
-
     </script>
 </head>
 

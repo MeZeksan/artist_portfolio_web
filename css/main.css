@@ -248,3 +248,20 @@ h1 {
 }
 
 
+
+.btn-view-profile {
+  font-family: 'MultiroundPro';
+  display: block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #d86fa4;
+  color: #282828;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-view-profile:hover {
+  background-color: #e67e22;
+}

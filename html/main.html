@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Artfolio.ru</title>
     <link rel="stylesheet" href="../css/main.css">
 
     <!-- Firebase SDK -->
     <script type="module">
         import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
 
         // Конфигурация Firebase
         const firebaseConfig = {
@@ -24,9 +24,11 @@
             measurementId: "G-JDDYG1C6J1"
         };
 
-        // Проверяем, была ли уже инициализирована Firebase
         const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
         const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null; // Сохраняем текущего пользователя
 
         // Получение пользователей из Firestore
         async function loadUsers() {
@@ -36,21 +38,18 @@
                 const querySnapshot = await getDocs(collection(db, 'users'));
 
                 if (querySnapshot.empty) {
-                    const noUsers = document.createElement('p');
-                    noUsers.textContent = 'Пока нет зарегистрированных пользователей.';
-                    usersContainer.appendChild(noUsers);
+                    usersContainer.textContent = 'Пока нет зарегистрированных пользователей.';
                 } else {
                     querySnapshot.forEach((doc) => {
                         const user = doc.data();
+                        user.id = doc.id; // добавляем ID документа для перехода на страницу
                         const card = createUserCard(user);
                         usersContainer.appendChild(card);
                     });
                 }
             } catch (error) {
                 console.error("Ошибка при получении пользователей: ", error);
-                const errorMsg = document.createElement('p');
-                errorMsg.textContent = 'Произошла ошибка при загрузке пользователей.';
-                usersContainer.appendChild(errorMsg);
+                usersContainer.textContent = 'Произошла ошибка при загрузке пользователей.';
             }
         }
 
@@ -60,7 +59,7 @@
             card.className = 'card';
 
             const img = document.createElement('img');
-            img.src = user.profilePhoto || 'default-avatar.png'; // Дефолтное изображение
+            img.src = user.profilePhoto || 'default-avatar.png';
             img.alt = user.nickname || 'No name';
             card.appendChild(img);
 
@@ -68,10 +67,8 @@
             h3.textContent = user.nickname || 'No name';
             card.appendChild(h3);
 
-            // Добавляем обработчик клика для открытия модального окна
-            card.addEventListener('click', function() {
-                openModal(user);
-            });
+            // Открытие модального окна при клике на карточку
+            card.addEventListener('click', () => openModal(user));
 
             return card;
         }
@@ -83,49 +80,58 @@
             document.getElementById('modal-email').textContent = user.email || 'No email';
             document.getElementById('modal-time').textContent = user.time || 'No registration time';
 
+            // Переход на страницу художника при нажатии на кнопку
+            const viewProfileButton = document.getElementById('view-artist-profile');
+            viewProfileButton.onclick = function () {
+                window.location.href = `artist_profile.html?id=${user.id}`;
+            };
+
             const modal = document.getElementById('myModal');
             modal.style.display = "block";
         }
 
         // Закрытие модального окна
         function closeModal() {
-            const modal = document.getElementById('myModal');
-            modal.style.display = "none";
+            document.getElementById('myModal').style.display = "none";
         }
 
-        // Обработчики событий
-        document.addEventListener('DOMContentLoaded', () => {
-            // Закрытие модального окна при нажатии на кнопку закрытия
-            document.querySelector('.close').addEventListener('click', closeModal);
+        // Функция для обновления навигационной панели
+        async function updateNavbar(user) {
+            const navbarLinks = document.getElementById('navbar-links');
+            navbarLinks.innerHTML = ''; // Очищаем существующие ссылки
 
-            // Закрытие модального окна при нажатии вне его
-            window.addEventListener('click', (event) => {
-                const modal = document.getElementById('myModal');
-                if (event.target === modal) {
-                    closeModal();
+            if (user) {
+                // Сохраняем текущего пользователя
+                currentUser = user;
+
+                // Ищем пользователя в коллекции users по email
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("email", "==", user.email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0];
+                    const userId = userDoc.id; // Получаем ID документа пользователя
+
+                    // Если пользователь авторизован
+                    navbarLinks.innerHTML = `
+                        <li><a href="blog.html">Наш блог</a></li>
+                        <li><a href="artist_profile.html?id=${userId}">Мой профиль</a></li>
+                        <li><a href="#" id="logout">Выйти</a></li>
+                    `;
+
+                    // Обработчик для выхода из аккаунта
+                    document.getElementById('logout').addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await signOut(auth);
+                        location.reload(); // Перезагрузка страницы после выхода
+                    });
+                } else {
+                    console.log("Пользователь не найден в коллекции users.");
                 }
-            });
-        });
-
-        // Функция для проверки состояния входа
-        function updateNavbar() {
-            const userEmail = localStorage.getItem('userEmail');
-            const navbar = document.getElementById('navbar-links');
-
-            if (userEmail) {
-                navbar.innerHTML = `
-                    <li><a href="blog.html">Наш блог</a></li>
-                    <li><a href="#" id="logout">Выйти</a></li>
-                `;
-
-                // Добавляем обработчик события для выхода
-                document.getElementById('logout').addEventListener('click', () => {
-                    localStorage.removeItem('userEmail'); // Удаляем email из localStorage
-                    alert('Вы вышли из системы.'); // Сообщение о выходе
-                    window.location.reload(); // Перезагружаем страницу
-                });
             } else {
-                navbar.innerHTML = `
+                // Если пользователь не авторизован
+                navbarLinks.innerHTML = `
                     <li><a href="blog.html">Наш блог</a></li>
                     <li><a href="register.html">Регистрация</a></li>
                     <li><a href="login.html">Войти</a></li>
@@ -133,12 +139,21 @@
             }
         }
 
-        window.onload = async function() {
-            updateNavbar(); // Обновляем navbar при загрузке страницы
-            await loadUsers(); // Загружаем пользователей после обновления navbar
-        };
-    </script>
+        // Проверка авторизации при загрузке страницы
+        onAuthStateChanged(auth, (user) => {
+            updateNavbar(user);
+        });
 
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.close').addEventListener('click', closeModal);
+            window.addEventListener('click', (event) => {
+                if (event.target === document.getElementById('myModal')) {
+                    closeModal();
+                }
+            });
+            loadUsers();
+        });
+    </script>
 </head>
 
 <body>
@@ -169,12 +184,10 @@
         </div>
     </section>
 
-    <!-- Artist Section -->
-    <section class="designers">
-        <h2>НАШИ художники</h2>
-        <div class="designer-cards-container">
-            <div class="designer-cards" id="registered-users"></div>
-        </div>
+     <!-- Main Section -->
+     <section class="main-section">
+        <h1>Наши художники</h1>
+        <div id="registered-users" class="designer-cards"></div>
     </section>
 
     <!-- Модальное окно -->
@@ -185,9 +198,10 @@
             <h2 id="modal-name">Имя художника</h2>
             <p id="modal-email">email@example.com</p>
             <p id="modal-time">Время регистрации</p>
+            <!-- Кнопка для перехода на страницу художника -->
+            <button id="view-artist-profile" class="btn-view-profile">Перейти на страницу художника</button>
         </div>
     </div>
-
 </body>
 
 </html>
