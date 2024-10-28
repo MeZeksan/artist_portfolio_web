@@ -67,7 +67,7 @@
                     document.getElementById('artist-email').textContent = user.email || 'Email не указан';
                     document.getElementById('artist-time').textContent = user.time || 'Дата регистрации не указана';
                     document.getElementById('artist-description').textContent = user.description || 'Описание отсутствует';
-                    document.getElementById('artist-pictures').innerHTML = (user.pictures && user.pictures.length > 0) ? user.pictures.map(pic => `<img src="${pic}" alt="Artwork" class="artwork-img">`).join('') : 'Работы отсутствуют';
+                    document.getElementById('artist-pictures').innerHTML = (user.pictures && user.pictures.length > 0) ? user.pictures.map(pic => `<img src="${pic}" alt="Artwork" class="artwork-img" data-src="${pic}">`).join('') : 'Работы отсутствуют';
 
                     if (artistId === userId) {
                         console.log("Художник соответствует текущему пользователю, показываем секцию редактирования");
@@ -148,6 +148,30 @@
                 console.error("Ошибка при обновлении описания:", error);
             }
         }
+
+        window.openModal = function(src) {
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-img');
+            modal.style.display = 'block';
+            modalImg.src = src;
+        }
+
+        window.closeModal = function() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const artworkImages = document.querySelectorAll('.artwork-img');
+            artworkImages.forEach(img => {
+                img.addEventListener('click', () => {
+                    openModal(img.dataset.src);
+                });
+            });
+
+            const modal = document.getElementById('modal');
+            modal.addEventListener('click', closeModal);
+        });
     </script>
 </head>
 
@@ -174,6 +198,12 @@
         <input type="file" id="file-input">
         <button onclick="uploadPicture()">Загрузить изображение</button>
     </section>
+
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modal-img" class="modal-content">
+    </div>
 </body>
 
 </html>
