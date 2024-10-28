@@ -41,7 +41,10 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
+                console.log("Успешная авторизация. Пользователь:", user);
+
                 localStorage.setItem('userEmail', user.email); // Сохраняем email в localStorage
+                console.log("Сохранен email в localStorage:", user.email);
 
                 // Ищем пользователя в коллекции users по email
                 const usersRef = collection(db, "users");
@@ -51,11 +54,17 @@
                 if (!querySnapshot.empty) {
                     const userDoc = querySnapshot.docs[0];
                     const userId = userDoc.id; // Получаем ID документа пользователя
+                    console.log("Найден пользователь в Firestore. userId:", userId);
+
                     localStorage.setItem('userId', userId); // Сохраняем ID пользователя
+                    console.log("Сохранен userId в localStorage:", userId);
 
                     const userData = userDoc.data();
                     const artistId = userData.artistId; // Убедитесь, что в документе есть поле artistId
+                    console.log("Найден artistId в Firestore:", artistId);
+
                     localStorage.setItem('artistId', artistId); // Сохраняем artistId в localStorage
+                    console.log("Сохранен artistId в localStorage:", artistId);
 
                     alert(`Добро пожаловать, ${user.email}!`); // Сообщение приветствия
                     window.location.href = "main.html"; // Перенаправление на главную страницу

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBTEgpcOXeYLlGrCftXHeLi8ETblUpPulc",
@@ -25,23 +27,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const storage = getStorage(app); // Инициализация хранилища
 
         let currentUserId = null;
+        let artistId = null;
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                loadArtist();
+                console.log("Текущий пользователь ID:", currentUserId);
+                await loadArtist();
             } else {
-                // Перенаправление на страницу входа, если пользователь не авторизован
+                console.log("Пользователь не авторизован, перенаправление на страницу входа");
                 window.location.href = "login.html";
             }
         });
 
         async function loadArtist() {
             const urlParams = new URLSearchParams(window.location.search);
-            const artistId = urlParams.get('id') || 'zk8kicwtP3HXVKwLxvb7'; // Используем заданный ID по умолчанию
-            console.log("Полученный artistId:", artistId); // Отладочный вывод
+            artistId = urlParams.get('id');
+            const userId = localStorage.getItem('userId'); // получаем userId из localStorage
+            console.log("ID художника из URL:", artistId);
+            console.log("userId из localStorage:", userId);
 
             if (!artistId) {
                 document.getElementById('artist-info').textContent = 'ID художника не указан.';
@@ -54,52 +61,93 @@
 
                 if (docSnap.exists()) {
                     const user = docSnap.data();
+                    console.log("Данные художника:", user);
+
                     document.getElementById('artist-avatar').src = user.profilePhoto || 'default-avatar.png';
                     document.getElementById('artist-name').textContent = user.nickname || 'Имя не указано';
                     document.getElementById('artist-email').textContent = user.email || 'Email не указан';
                     document.getElementById('artist-time').textContent = user.time || 'Дата регистрации не указана';
                     document.getElementById('artist-description').textContent = user.description || 'Описание отсутствует';
+                    document.getElementById('artist-pictures').innerHTML = (user.pictures && user.pictures.length > 0) ? user.pictures.map(pic => `<img src="${pic}" alt="Artwork" class="artwork-img">`).join('') : 'Работы отсутствуют';
 
-                    // Показываем возможности редактирования, если это профиль текущего пользователя
-                    if (artistId === currentUserId) {
+                    // Проверка, что artistId совпадает с userId
+                    if (artistId === userId) { // используем userId из localStorage
+                        console.log("Художник соответствует текущему пользователю, показываем секцию редактирования");
                         document.getElementById('edit-section').style.display = 'block';
+                    } else {
+                        console.log("Художник НЕ соответствует текущему пользователю, скрываем секцию редактирования");
+                        document.getElementById('edit-section').style.display = 'none';
                     }
                 } else {
+                    console.log("Документ не найден для ID:", artistId);
                     document.getElementById('artist-info').textContent = 'Художник не найден.';
                 }
             } catch (error) {
-                console.error("Ошибка при получении данных художника: ", error);
+                console.error("Ошибка при получении данных художника:", error);
                 document.getElementById('artist-info').textContent = 'Произошла ошибка при загрузке данных художника.';
             }
         }
 
-        async function updateDescription() {
+        window.updateDescription = async function() {
             const newDescription = document.getElementById('description-input').value;
-            const docRef = doc(db, 'users', currentUserId);
+            console.log("Новое описание:", newDescription);
+
+            if (!artistId) {
+                console.error("artistId не установлен");
+                return;
+            }
+
+            const docRef = doc(db, 'users', artistId);
 
             try {
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    console.error("Документ не найден для ID:", artistId);
+                    return;
+                }
+
                 await updateDoc(docRef, {
                     description: newDescription
                 });
-                document.getElementById('artist-description').textContent = newDescription;
+                console.log("Описание успешно обновлено");
+                await loadArtist(); // Перезагрузка данных после обновления
                 alert("Описание обновлено!");
             } catch (error) {
-                console.error("Ошибка при обновлении описания: ", error);
+                console.error("Ошибка при обновлении описания:", error);
             }
         }
 
-        async function addArtwork() {
-            const artworkUrl = document.getElementById('artwork-url').value;
-            const docRef = doc(db, 'users', currentUserId);
+        window.addArtwork = async function() {
+            const fileInput = document.getElementById('artwork-file');
+            const file = fileInput.files[0]; // Получаем файл из input
+
+            if (!file) {
+                alert("Пожалуйста, выберите файл для загрузки.");
+                return;
+            }
+
+            const storageRef = ref(storage, `artworks/${currentUserId}/${file.name}`);
 
             try {
+                // Загружаем файл в Firebase Storage
+                await uploadBytes(storageRef, file);
+                console.log("Файл успешно загружен");
+
+                // Получаем URL загруженного файла
+                const downloadURL = await getDownloadURL(storageRef);
+
+                const docRef = doc(db, 'users', currentUserId);
                 await updateDoc(docRef, {
-                    artworks: arrayUnion(artworkUrl)
+                    pictures: arrayUnion(downloadURL)
                 });
+
+                console.log("Работа успешно добавлена");
                 alert("Работа добавлена!");
-                document.getElementById('artwork-url').value = ''; // очищаем поле ввода
+                loadArtist();
+                fileInput.value = ''; // Очищаем поле выбора файла
             } catch (error) {
-                console.error("Ошибка при добавлении работы: ", error);
+                console.error("Ошибка при добавлении работы:", error);
             }
         }
     </script>
@@ -112,22 +160,22 @@
         <p id="artist-email">email@example.com</p>
         <p id="artist-time">Дата регистрации</p>
         <p id="artist-description">Описание художника</p>
+        <div id="artist-pictures" class="artwork-gallery"></div>
         <a href="main.html" class="btn-back">Назад</a>
     </section>
 
     <!-- Секция для редактирования профиля, видна только текущему пользователю -->
     <section id="edit-section" style="display: none;">
         <h3>Редактировать профиль</h3>
-        
-        <!-- Обновление описания -->
+
         <label for="description-input">Описание:</label>
         <textarea id="description-input" placeholder="Введите новое описание"></textarea>
         <button onclick="updateDescription()">Обновить описание</button>
-        
-        <!-- Добавление работы -->
-        <label for="artwork-url">URL работы:</label>
-        <input type="url" id="artwork-url" placeholder="Введите URL работы">
+
+        <label for="artwork-file">Загрузить работу:</label>
+        <input type="file" id="artwork-file" accept="image/*"> <!-- Поле для загрузки файла -->
         <button onclick="addArtwork()">Добавить работу</button>
     </section>
 </body>
+
 </html>

@@ -28,8 +28,6 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        let currentUser = null; // Сохраняем текущего пользователя
-
         // Получение пользователей из Firestore
         async function loadUsers() {
             const usersContainer = document.getElementById('registered-users');
@@ -81,10 +79,13 @@
             document.getElementById('modal-time').textContent = user.time || 'No registration time';
 
             // Переход на страницу художника при нажатии на кнопку
+            // Переход на страницу художника при нажатии на кнопку
             const viewProfileButton = document.getElementById('view-artist-profile');
             viewProfileButton.onclick = function () {
-                window.location.href = `artist_profile.html?id=${user.id}`;
+                console.log("Переход на страницу художника. ID пользователя:", user.id);
+                window.location.href = `artist_profile.html?id=${user.id}&userId=${userId}`; // добавляем userId в URL
             };
+
 
             const modal = document.getElementById('myModal');
             modal.style.display = "block";
@@ -101,9 +102,6 @@
             navbarLinks.innerHTML = ''; // Очищаем существующие ссылки
 
             if (user) {
-                // Сохраняем текущего пользователя
-                currentUser = user;
-
                 // Ищем пользователя в коллекции users по email
                 const usersRef = collection(db, "users");
                 const q = query(usersRef, where("email", "==", user.email));
@@ -112,7 +110,7 @@
                 if (!querySnapshot.empty) {
                     const userDoc = querySnapshot.docs[0];
                     const userId = userDoc.id; // Получаем ID документа пользователя
-
+                    console.log("userID", userId);
                     // Если пользователь авторизован
                     navbarLinks.innerHTML = `
                         <li><a href="blog.html">Наш блог</a></li>
@@ -184,8 +182,8 @@
         </div>
     </section>
 
-     <!-- Main Section -->
-     <section class="main-section">
+    <!-- Main Section -->
+    <section class="main-section">
         <h1>Наши художники</h1>
         <div id="registered-users" class="designer-cards"></div>
     </section>
