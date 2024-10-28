@@ -170,7 +170,11 @@
             });
 
             const modal = document.getElementById('modal');
-            modal.addEventListener('click', closeModal);
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
         });
     </script>
 </head>
@@ -193,7 +197,7 @@
         <label for="description-input">Описание:</label>
         <textarea id="description-input" placeholder="Введите новое описание"></textarea>
         <button onclick="updateDescription()">Обновить описание</button>
-
+        <div class = "spacer"></div>
         <label for="file-input">Добавить изображение:</label>
         <input type="file" id="file-input">
         <button onclick="uploadPicture()">Загрузить изображение</button>

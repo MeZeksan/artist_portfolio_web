@@ -1,4 +1,3 @@
-
 @font-face {
   font-family: 'MultiroundPro';
   src: url('../fonts/MultiroundPro.otf') format('truetype');
@@ -82,6 +81,38 @@ h1 {
   margin-bottom: 20px;
 }
 
+.project-description {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  color: #D4BE98;
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.project-description h1 {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.project-description h2 {
+  font-size: 32px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.project-description p {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.project-description ul, .project-description ol {
+  margin-left: 20px;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
 .buttons {
   margin-top: 20px;
 }
@@ -133,15 +164,11 @@ h1 {
   margin-bottom: 40px;
 }
 
-.designer-cards-container {
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 20px 0;
-}
-
 .designer-cards {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  padding: 20px 0;
 }
 
 .card {
@@ -149,9 +176,7 @@ h1 {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  width: 300px;
-  display: inline-block;
-  vertical-align: top;
+  width: 100%;
   box-sizing: border-box; /* Учитываем padding в общей ширине */
 }
 
@@ -186,7 +211,6 @@ h1 {
   height: 250px; /* Высота, которая удлинит страницу */
 }
 
-
 /* Стили для модального окна */
 .modal {
   display: none; /* Скрыть модальное окно по умолчанию */
@@ -211,7 +235,7 @@ h1 {
   color: #D4BE98;
   text-align: center;
 }
-/* Добавьте этот код в конец вашего CSS файла */
+
 .modal-content img {
   margin-bottom: 20px;
   object-fit: cover;
@@ -247,21 +271,15 @@ h1 {
   cursor: pointer; /* Указатель для курсора */
 }
 
-
-
 .btn-view-profile {
   font-family: 'MultiroundPro';
   display: block;
+  margin: 20px auto 0; /* Центрируем кнопку по горизонтали и добавляем отступ сверху */
   margin-top: 10px;
-  padding: 10px 20px;
   background-color: #d86fa4;
-  color: #282828;
-  border: none;
+  padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  color: #282828;
   text-align: center;
-}
-
-.btn-view-profile:hover {
-  background-color: #e67e22;
 }

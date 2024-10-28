@@ -32,7 +32,7 @@ body {
   padding: 40px 30px;
   border-radius: 15px;
   width: 100%;
-  max-width: 600px;
+  max-width: 1000px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
   margin-bottom: 20px;
 }
@@ -84,8 +84,8 @@ body {
 }
 
 .artwork-img {
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: 10px;
   transition: transform 0.3s ease;
@@ -212,4 +212,7 @@ body {
   color: #bbb;
   text-decoration: none;
   cursor: pointer;
+}
+.spacer {
+  height: 25px; /* Высота, которая удлинит страницу */
 }
