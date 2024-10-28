@@ -79,13 +79,11 @@
             document.getElementById('modal-time').textContent = user.time || 'No registration time';
 
             // Переход на страницу художника при нажатии на кнопку
-            // Переход на страницу художника при нажатии на кнопку
             const viewProfileButton = document.getElementById('view-artist-profile');
             viewProfileButton.onclick = function () {
                 console.log("Переход на страницу художника. ID пользователя:", user.id);
-                window.location.href = `artist_profile.html?id=${user.id}&userId=${userId}`; // добавляем userId в URL
+                window.location.href = `artist_profile.html?id=${user.id}`; // добавляем userId в URL
             };
-
 
             const modal = document.getElementById('myModal');
             modal.style.display = "block";
@@ -99,6 +97,11 @@
         // Функция для обновления навигационной панели
         async function updateNavbar(user) {
             const navbarLinks = document.getElementById('navbar-links');
+            if (!navbarLinks) {
+                console.error("Элемент navbar-links не найден");
+                return;
+            }
+            console.log("Updating navbar for user:", user);
             navbarLinks.innerHTML = ''; // Очищаем существующие ссылки
 
             if (user) {
@@ -126,6 +129,12 @@
                     });
                 } else {
                     console.log("Пользователь не найден в коллекции users.");
+                    // Если пользователь не найден, добавляем ссылку на регистрацию
+                    navbarLinks.innerHTML = `
+                        <li><a href="blog.html">Наш блог</a></li>
+                        <li><a href="register.html">Регистрация</a></li>
+                        <li><a href="login.html">Войти</a></li>
+                    `;
                 }
             } else {
                 // Если пользователь не авторизован
@@ -139,6 +148,7 @@
 
         // Проверка авторизации при загрузке страницы
         onAuthStateChanged(auth, (user) => {
+            console.log("User:", user);
             updateNavbar(user);
         });
 

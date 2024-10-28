@@ -27,7 +27,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const storage = getStorage(app); // Инициализация хранилища
 
         let currentUserId = null;
         let artistId = null;
@@ -46,7 +45,7 @@
         async function loadArtist() {
             const urlParams = new URLSearchParams(window.location.search);
             artistId = urlParams.get('id');
-            const userId = localStorage.getItem('userId'); // получаем userId из localStorage
+            const userId = localStorage.getItem('userId');
             console.log("ID художника из URL:", artistId);
             console.log("userId из localStorage:", userId);
 
@@ -70,8 +69,7 @@
                     document.getElementById('artist-description').textContent = user.description || 'Описание отсутствует';
                     document.getElementById('artist-pictures').innerHTML = (user.pictures && user.pictures.length > 0) ? user.pictures.map(pic => `<img src="${pic}" alt="Artwork" class="artwork-img">`).join('') : 'Работы отсутствуют';
 
-                    // Проверка, что artistId совпадает с userId
-                    if (artistId === userId) { // используем userId из localStorage
+                    if (artistId === userId) {
                         console.log("Художник соответствует текущему пользователю, показываем секцию редактирования");
                         document.getElementById('edit-section').style.display = 'block';
                     } else {
@@ -85,6 +83,39 @@
             } catch (error) {
                 console.error("Ошибка при получении данных художника:", error);
                 document.getElementById('artist-info').textContent = 'Произошла ошибка при загрузке данных художника.';
+            }
+        }
+
+        window.uploadPicture = async function(){
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Выберите файл для загрузки");
+                return;
+            }
+
+            const storage = getStorage(app);
+            const storageRef = ref(storage, `artworks/${artistId}/${file.name}`);
+
+            try {
+                // Загрузка файла в Storage
+                await uploadBytes(storageRef, file);
+                console.log("Файл загружен успешно!");
+
+                // Получение URL файла
+                const downloadURL = await getDownloadURL(storageRef);
+
+                // Сохранение URL в Firestore Database
+                const userDocRef = doc(db, 'users', artistId);
+                await updateDoc(userDocRef, {
+                    pictures: arrayUnion(downloadURL)
+                });
+
+                alert("Изображение успешно загружено!");
+                await loadArtist(); // Обновляем страницу, чтобы показать новое изображение
+            } catch (error) {
+                console.error("Ошибка при загрузке изображения:", error);
+                alert("Произошла ошибка при загрузке изображения.");
             }
         }
 
@@ -111,43 +142,10 @@
                     description: newDescription
                 });
                 console.log("Описание успешно обновлено");
-                await loadArtist(); // Перезагрузка данных после обновления
+                await loadArtist();
                 alert("Описание обновлено!");
             } catch (error) {
                 console.error("Ошибка при обновлении описания:", error);
-            }
-        }
-
-        window.addArtwork = async function() {
-            const fileInput = document.getElementById('artwork-file');
-            const file = fileInput.files[0]; // Получаем файл из input
-
-            if (!file) {
-                alert("Пожалуйста, выберите файл для загрузки.");
-                return;
-            }
-
-            const storageRef = ref(storage, `artworks/${currentUserId}/${file.name}`);
-
-            try {
-                // Загружаем файл в Firebase Storage
-                await uploadBytes(storageRef, file);
-                console.log("Файл успешно загружен");
-
-                // Получаем URL загруженного файла
-                const downloadURL = await getDownloadURL(storageRef);
-
-                const docRef = doc(db, 'users', currentUserId);
-                await updateDoc(docRef, {
-                    pictures: arrayUnion(downloadURL)
-                });
-
-                console.log("Работа успешно добавлена");
-                alert("Работа добавлена!");
-                loadArtist();
-                fileInput.value = ''; // Очищаем поле выбора файла
-            } catch (error) {
-                console.error("Ошибка при добавлении работы:", error);
             }
         }
     </script>
@@ -172,9 +170,9 @@
         <textarea id="description-input" placeholder="Введите новое описание"></textarea>
         <button onclick="updateDescription()">Обновить описание</button>
 
-        <label for="artwork-file">Загрузить работу:</label>
-        <input type="file" id="artwork-file" accept="image/*"> <!-- Поле для загрузки файла -->
-        <button onclick="addArtwork()">Добавить работу</button>
+        <label for="file-input">Добавить изображение:</label>
+        <input type="file" id="file-input">
+        <button onclick="uploadPicture()">Загрузить изображение</button>
     </section>
 </body>
 
